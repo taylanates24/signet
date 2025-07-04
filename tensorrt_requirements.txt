@@ -1,0 +1,34 @@
+# TensorRT Dependencies
+# Note: TensorRT installation is complex and hardware-specific
+# Follow the official NVIDIA installation guide for your system
+
+# Core dependencies (install via pip)
+numpy>=1.21.0
+Pillow>=8.0.0
+torch>=1.12.0
+torchvision>=0.13.0
+
+# CUDA dependencies (install via conda or system package manager)
+# pycuda>=2021.1
+
+# TensorRT (requires NVIDIA Developer account and manual installation)
+# Download from: https://developer.nvidia.com/tensorrt
+# Or install via: pip install tensorrt (if using NVIDIA PyPI index)
+# Note: TensorRT 8.5+ recommended for best compatibility
+# Tested with TensorRT 8.5.x, 8.6.x, and 9.x
+
+# ONNX (for conversion pipeline)
+onnx>=1.12.0
+
+# Installation Notes:
+# 1. Install CUDA Toolkit (11.8+ recommended)
+# 2. Install cuDNN (compatible with your CUDA version)
+# 3. Download and install TensorRT from NVIDIA
+# 4. Install pycuda: pip install pycuda
+# 5. Add TensorRT to your Python path
+
+# For Ubuntu/Debian systems:
+# sudo apt-get install tensorrt
+
+# For conda environments:
+# conda install -c conda-forge pycuda 

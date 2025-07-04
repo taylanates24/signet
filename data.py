@@ -13,16 +13,9 @@ import matplotlib.pyplot as plt
 seed = 2020
 np.random.seed(seed)
 
-def get_data_loader(is_train, batch_size, image_transform, dataset='cedar'):
-    if dataset == 'cedar':
-        data_dir = './data/CEDAR'
-    elif dataset == 'bengali':
-        data_dir = './data/BHSig260/Bengali'
-    elif dataset == 'hindi':
-        data_dir ='./data/BHSig260/Hindi'
-    else:
-        raise ValueError(f'Unknow dataset {dataset}')
-    data = SignDataset(is_train, data_dir, image_transform)
+def get_data_loader(is_train, batch_size, image_transform, dataset_dir='cedar'):
+
+    data = SignDataset(is_train, dataset_dir, image_transform)
     is_shuffle = is_train
     loader = DataLoader(data, batch_size=batch_size, shuffle=is_shuffle, num_workers=12, pin_memory=True)
     return loader

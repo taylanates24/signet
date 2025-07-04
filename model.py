@@ -32,7 +32,7 @@ class SigNet(nn.Module):
     '''
     Reference Keras: https://github.com/sounakdey/SigNet/blob/master/SigNet_v1.py
     '''
-    def __init__(self):
+    def __init__(self, dropout_conv_p=0.3, dropout_fc_p=0.5):
         super().__init__()
         self.features = nn.Sequential(
             #input size = [155, 220, 1]
@@ -43,14 +43,14 @@ class SigNet(nn.Module):
             nn.Conv2d(96, 256, 5, padding=2, padding_mode='zeros'), # size = [72, 105]
             nn.LocalResponseNorm(size=5, k=2, alpha=1e-4, beta=0.75),
             nn.MaxPool2d(2, stride=2), # size = [36, 52]
-            nn.Dropout2d(p=0.3),
+            nn.Dropout2d(p=dropout_conv_p),
             nn.Conv2d(256, 384, 3, stride=1, padding=1, padding_mode='zeros'),
             nn.Conv2d(384, 256, 3, stride=1, padding=1, padding_mode='zeros'),
             nn.MaxPool2d(2, stride=2), # size = [18, 26]
-            nn.Dropout2d(p=0.3),
+            nn.Dropout2d(p=dropout_conv_p),
             nn.Flatten(1, -1), # 18*26*256
             nn.Linear(18*26*256, 1024),
-            nn.Dropout2d(p=0.5),
+            nn.Dropout(p=dropout_fc_p),
             nn.Linear(1024, 128),
         )
 
