@@ -9,7 +9,7 @@ import torch.optim as optim
 from torchvision import transforms
 from metrics import accuracy
 from argparse import ArgumentParser
-from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard.writer import SummaryWriter
 import time
 
 def train(model, optimizer, criterion, dataloader, writer, epoch, log_interval=50):
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     parser.add_argument('--seed', type=int, default=2020, help='Random seed for reproducibility')
     
     # Dataset parameters
-    parser.add_argument('--dataset', type=str, choices=['data/CEDAR', 'sign_data'], default='sign_data', help='Dataset directory path')
+    parser.add_argument('--dataset', type=str, choices=['data/CEDAR', 'sign_data'], default='data/CEDAR', help='Dataset directory path')
     parser.add_argument('--img_height', type=int, default=155, help='Image height for resizing')
     parser.add_argument('--img_width', type=int, default=220, help='Image width for resizing')
     

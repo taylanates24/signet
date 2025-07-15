@@ -38,20 +38,19 @@ RUN pip --no-cache-dir install \
 	matplotlib==3.9.3 \
 	tqdm \
     pillow==11.0.0 \
-    opencv-contrib-python==4.5.5.64 \
+    opencv-python==4.5.5.64 \
     scipy==1.14.1 \
     scikit-image==0.25.2 \
     onnx \
     transformers==4.49.0 \
     onnxsim==0.4.36 \
-    onnxruntime-gpu==1.19.2 \
-    pycuda==2025.1 \
-    calflops==0.3.2 \
+    onnxruntime-gpu \
     tensorrt==10.7.0 \
-    tensorboard==2.16.2
+    tensorboard==2.16.2 \
+    pycuda
 
 RUN pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
-RUN pip install grpcio
+
 
 RUN ln -sf /usr/share/zoneinfo/Turkey /etc/localtime
 

@@ -4,7 +4,7 @@
 	"context": "..",
 
 	// "dockerFile": "../Dockerfile",
-       "image": "rtdetr:v2",
+       "image": "signet_latest:latest",
 	// "image": "tensorrt_image_v2:latest",
 // "image": "tensorrt_image:v3",
 	"runArgs": [

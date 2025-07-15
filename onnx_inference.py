@@ -11,7 +11,7 @@ import json
 class ONNXSigNetInference:
     def __init__(self, model_path: str, threshold: float = 0.5, 
                  img_height: int = 155, img_width: int = 220,
-                 providers: List[str] = None):
+                 providers: List[str] = ['CUDAExecutionProvider', 'CPUExecutionProvider']):
         """
         Initialize ONNX SigNet inference class
         
@@ -384,7 +384,7 @@ if __name__ == "__main__":
     parser.add_argument('--image2', type=str, 
                        default='data/CEDAR/full_org/original_38_3.png',
                        help='Path to second signature image')
-    parser.add_argument('--threshold', type=float, default=0.0349,
+    parser.add_argument('--threshold', type=float, default=0.0752,
                        help='Distance threshold for classification')
     parser.add_argument('--img_height', type=int, default=155,
                        help='Image height for preprocessing')
