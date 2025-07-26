@@ -30,9 +30,7 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
 RUN pip install --upgrade pip
 
 RUN pip --no-cache-dir install \
-      Cython==0.29.21
-
-RUN pip --no-cache-dir install \
+    Cython \
     setuptools \
     numpy==1.26.4 \
 	matplotlib==3.9.3 \
