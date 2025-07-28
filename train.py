@@ -9,8 +9,10 @@ import torch.optim as optim
 from torchvision import transforms
 from metrics import accuracy
 from argparse import ArgumentParser
-from torch.utils.tensorboard.writer import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 import time
+import matplotlib.pyplot as plt
+import numpy as np
 
 def train(model, optimizer, criterion, dataloader, writer, epoch, log_interval=50):
     model.train()
@@ -41,7 +43,7 @@ def train(model, optimizer, criterion, dataloader, writer, epoch, log_interval=5
             number_samples = 0
 
 @torch.no_grad()
-def eval(model, criterion, dataloader, writer, epoch, log_interval=50):
+def eval(model, criterion, dataloader, writer, epoch, exp_dir, log_interval=50):
     model.eval()
     running_loss = 0
     number_samples = 0
@@ -72,6 +74,35 @@ def eval(model, criterion, dataloader, writer, epoch, log_interval=50):
     writer.add_scalar('Loss/Validation', avg_loss, epoch)
     writer.add_scalar('Accuracy/Validation', max_accuracy, epoch)
     writer.add_scalar('Threshold/Best', best_threshold, epoch)
+    
+    # Generate and log scatter plot
+    fig = plt.figure()
+    
+    # Separate genuine and forged distances
+    genuine_distances = distances[y == 1]
+    forged_distances = distances[y == 0]
+    
+    # Plot genuine and forged distances
+    plt.scatter(np.arange(len(genuine_distances)), genuine_distances, color='green', label='Genuine', alpha=0.5)
+    plt.scatter(np.arange(len(forged_distances)), forged_distances, color='red', label='Forged', alpha=0.5)
+    
+    # Add threshold line
+    plt.axhline(y=best_threshold, color='blue', linestyle='--', label=f'Threshold ({best_threshold:.4f})')
+    
+    plt.title('Distances of Genuine and Forged Signatures')
+    plt.xlabel('Sample Index')
+    plt.ylabel('Distance')
+    plt.legend()
+    plt.grid(True)
+    
+    writer.add_figure('Evaluation/Distances', fig, epoch)
+    
+    figures_dir = os.path.join(exp_dir, 'figures')
+    os.makedirs(figures_dir, exist_ok=True)
+    fig_path = os.path.join(figures_dir, f'distances_epoch_{epoch:03d}.png')
+    fig.savefig(fig_path)
+    plt.close(fig)
+    print(f'Saved distance plot to {fig_path}')
     
     return avg_loss, max_accuracy
 
@@ -111,7 +142,7 @@ if __name__ == "__main__":
     # Experiment organization parameters
     parser.add_argument('--exp_name', type=str, default='signet_exp', help='Experiment name for organizing outputs')
     parser.add_argument('--exp_root', type=str, default='experiments', help='Root directory for all experiments')
-    parser.add_argument('--log_interval', type=int, default=50, help='Logging interval for training progress')
+    parser.add_argument('--log_interval', type=int, default=1, help='Logging interval for training progress')
     
     # Model graph logging
     parser.add_argument('--log_model_graph', action='store_true', default=True, help='Log model architecture to TensorBoard')
@@ -225,7 +256,7 @@ if __name__ == "__main__":
         print('Training', '-'*20)
         train(model, optimizer, criterion, trainloader, writer, epoch, args.log_interval)
         print('Evaluating', '-'*20)
-        loss, acc = eval(model, criterion, testloader, writer, epoch, args.log_interval)
+        loss, acc = eval(model, criterion, testloader, writer, epoch, exp_dir, args.log_interval)
         
         # Log learning rate
         current_lr = optimizer.param_groups[0]['lr']
