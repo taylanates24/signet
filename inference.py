@@ -283,10 +283,11 @@ def find_optimal_threshold(model, dataloader, threshold_range=(0.1, 2.0), num_th
 
 if __name__ == "__main__":
     parser = ArgumentParser(description='SigNet Inference Script')
-    parser.add_argument('--model_path', type=str, default='experiments/signet_exp_20250703_101313/checkpoints/20250703_101313_epoch_000_loss_0.4860_acc_1.0000.pt', help='Path to trained model checkpoint')
-    parser.add_argument('--image1', type=str, default='data/CEDAR/full_org/original_38_1.png', help='Path to first signature image')
-    parser.add_argument('--image2', type=str, default='data/CEDAR/full_org/original_38_3.png', help='Path to second signature image')
-    parser.add_argument('--threshold', type=float, default=0.0349, help='Distance threshold for classification')
+    parser.add_argument('--model_path', type=str, default='model.pt', help='Path to trained model checkpoint')
+    parser.add_argument('--image1', type=str, default='data/CEDAR/full_org/original_1_1.png', help='Path to first signature image')
+    parser.add_argument('--image2', type=str, default='data/CEDAR/full_org/original_1_12.png', help='Path to second signature image')
+    #parser.add_argument('--image2', type=str, default='data/CEDAR/full_forg/forgeries_1_8.png', help='Path to second signature image')
+    parser.add_argument('--threshold', type=float, default=0.0641, help='Distance threshold for classification')
     parser.add_argument('--dataset', type=str, help='Dataset directory for evaluation')
     parser.add_argument('--batch_size', type=int, default=1, help='Batch size for evaluation')
     parser.add_argument('--find_optimal_threshold', action='store_true', help='Find optimal threshold on dataset')
