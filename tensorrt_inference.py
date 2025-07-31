@@ -690,15 +690,15 @@ class TensorRTSigNetInference:
 
 if __name__ == "__main__":
     parser = ArgumentParser(description='TensorRT SigNet Inference')
-    parser.add_argument('--engine_path', type=str, default='signet.trt',
+    parser.add_argument('--engine_path', type=str, default='model.trt',
                        help='Path to TensorRT engine file')
     parser.add_argument('--image1', type=str, 
-                       default='data/CEDAR/full_org/original_38_1.png',
+                       default='data/CEDAR/full_org/original_1_1.png',
                        help='Path to first signature image')
     parser.add_argument('--image2', type=str, 
-                       default='data/CEDAR/full_org/original_38_3.png',
+                       default='data/CEDAR/full_org/original_1_12.png',
                        help='Path to second signature image')
-    parser.add_argument('--threshold', type=float, default=0.0349,
+    parser.add_argument('--threshold', type=float, default=0.0641,
                        help='Distance threshold for classification')
     parser.add_argument('--img_height', type=int, default=155,
                        help='Image height for preprocessing')
@@ -708,7 +708,7 @@ if __name__ == "__main__":
                        help='Run performance benchmark')
     parser.add_argument('--benchmark_iterations', type=int, default=100,
                        help='Number of benchmark iterations')
-    parser.add_argument('--benchmark_batch_sizes', nargs='+', type=int, default=[1, 4, 8],
+    parser.add_argument('--benchmark_batch_sizes', nargs='+', type=int, default=[1],
                        help='Batch sizes for benchmarking')
     parser.add_argument('--batch_test', action='store_true',
                        help='Test batch processing')

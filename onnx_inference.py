@@ -376,15 +376,15 @@ def create_dataset_from_directory(data_dir: str) -> List[Tuple[str, str, int]]:
 
 if __name__ == "__main__":
     parser = ArgumentParser(description='ONNX SigNet Inference Script')
-    parser.add_argument('--model_path', type=str, default='signet.onnx',
+    parser.add_argument('--model_path', type=str, default='model.onnx',
                        help='Path to ONNX model file')
     parser.add_argument('--image1', type=str, 
-                       default='data/CEDAR/full_org/original_38_1.png',
+                       default='data/CEDAR/full_org/original_1_1.png',
                        help='Path to first signature image')
     parser.add_argument('--image2', type=str, 
-                       default='data/CEDAR/full_org/original_38_3.png',
+                       default='data/CEDAR/full_org/original_1_12.png',
                        help='Path to second signature image')
-    parser.add_argument('--threshold', type=float, default=0.0752,
+    parser.add_argument('--threshold', type=float, default=0.0641,
                        help='Distance threshold for classification')
     parser.add_argument('--img_height', type=int, default=155,
                        help='Image height for preprocessing')
