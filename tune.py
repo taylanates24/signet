@@ -110,7 +110,7 @@ def tune(args):
 
     full_param_space = {
         'lr': [1e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3, 5e-3, 1e-2],
-        'batch_size': [16, 32],
+        'batch_size': [8, 16, 32, 64],
         'dropout_conv_p': [0, 0.1, 0.3],
         'dropout_fc_p': [0, 0.1, 0.3],
         'weight_decay': [0, 5e-4],
