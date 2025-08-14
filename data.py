@@ -13,24 +13,30 @@ import matplotlib.pyplot as plt
 seed = 2020
 np.random.seed(seed)
 
-def get_data_loader(is_train, batch_size, image_transform, dataset_dir='cedar'):
+def get_data_loader(is_train, batch_size, image_transform, dataset_dir='cedar', data_file=None):
 
-    data = SignDataset(is_train, dataset_dir, image_transform)
+    if data_file is None:
+        data_file = 'train.csv' if is_train else 'test.csv'
+
+    data = SignDataset(is_train, dataset_dir, image_transform, data_file=data_file)
     is_shuffle = is_train
     loader = DataLoader(data, batch_size=batch_size, shuffle=is_shuffle, num_workers=12, pin_memory=True)
     return loader
 
 class SignDataset(Dataset):
-    def __init__(self, is_train: bool, data_dir: str, image_transform=None):
-        if not os.path.exists(os.path.join(data_dir, 'train.csv')) or not os.path.exists(os.path.join(data_dir, 'test.csv')):
-            print('Not found train/test splits, run create_annotation first')
+    def __init__(self, is_train: bool, data_dir: str, image_transform=None, data_file=None):
+        if data_file is None:
+            if not os.path.exists(os.path.join(data_dir, 'train.csv')) or not os.path.exists(os.path.join(data_dir, 'test.csv')):
+                print('Not found train/test splits, run create_annotation first')
+            else:
+                print('Use existed train/test splits')
+            
+            if is_train:
+                self.df = pd.read_csv(os.path.join(data_dir, 'train.csv'), header=None)
+            else:
+                self.df = pd.read_csv(os.path.join(data_dir, 'test.csv'), header=None)
         else:
-            print('Use existed train/test splits')
-        
-        if is_train:
-            self.df = pd.read_csv(os.path.join(data_dir, 'train.csv'), header=None)
-        else:
-            self.df = pd.read_csv(os.path.join(data_dir, 'test.csv'), header=None)
+            self.df = pd.read_csv(os.path.join(data_dir, data_file), header=None)
 
         self.image_transform = image_transform
 

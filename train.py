@@ -14,6 +14,8 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 def train(model, optimizer, criterion, dataloader, writer, epoch, log_interval=50):
     model.train()
     running_loss = 0
@@ -106,54 +108,15 @@ def eval(model, criterion, dataloader, writer, epoch, exp_dir, log_interval=50):
     
     return avg_loss, max_accuracy
 
-if __name__ == "__main__":
-    parser = ArgumentParser(description='SigNet Training Script')
-    
-    # Training parameters
-    parser.add_argument('--batch_size', type=int, default=16, help='Batch size for training and validation')
-    parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate')
-    parser.add_argument('--num_epochs', type=int, default=1, help='Number of training epochs')
-    parser.add_argument('--seed', type=int, default=2020, help='Random seed for reproducibility')
-    
-    # Dataset parameters
-    parser.add_argument('--dataset', type=str, choices=['data/CEDAR', 'sign_data'], default='data/CEDAR', help='Dataset directory path')
-    parser.add_argument('--img_height', type=int, default=155, help='Image height for resizing')
-    parser.add_argument('--img_width', type=int, default=220, help='Image width for resizing')
-    
-    # Optimizer parameters
-    parser.add_argument('--optimizer', type=str, choices=['rmsprop', 'adam', 'sgd'], default='adam', help='Optimizer type')
-    parser.add_argument('--eps', type=float, default=1e-8, help='Optimizer epsilon (for RMSprop and Adam)')
-    parser.add_argument('--weight_decay', type=float, default=2e-4, help='Weight decay')
-    parser.add_argument('--momentum', type=float, default=0.9, help='Momentum (for RMSprop and SGD)')
-    
-    # Scheduler parameters
-    parser.add_argument('--scheduler_step', type=int, default=5, help='Learning rate scheduler step size')
-    parser.add_argument('--scheduler_gamma', type=float, default=0.5, help='Learning rate scheduler gamma')
-    
-    # Loss function parameters
-    parser.add_argument('--alpha', type=float, default=1.0, help='Contrastive loss alpha parameter')
-    parser.add_argument('--beta', type=float, default=1.0, help='Contrastive loss beta parameter')
-    parser.add_argument('--margin', type=float, default=1.0, help='Contrastive loss margin parameter')
-    
-    # Dropout parameters
-    parser.add_argument('--dropout_conv_p', type=float, default=0.2, help='Dropout probability for convolutional layers')
-    parser.add_argument('--dropout_fc_p', type=float, default=0.3, help='Dropout probability for fully connected layers')
-    
-    # Experiment organization parameters
-    parser.add_argument('--exp_name', type=str, default='signet_exp', help='Experiment name for organizing outputs')
-    parser.add_argument('--exp_root', type=str, default='experiments', help='Root directory for all experiments')
-    parser.add_argument('--log_interval', type=int, default=1, help='Logging interval for training progress')
-    
-    # Model graph logging
-    parser.add_argument('--log_model_graph', action='store_true', default=True, help='Log model architecture to TensorBoard')
-    
-    args = parser.parse_args()
+def run_training(args):
+    """
+    Runs the training and evaluation process.
+    """
     print(args)
 
     # Set random seed
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed_all(args.seed)
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print('Device: {}'.format(device))
 
     # Create timestamped experiment directory
@@ -238,9 +201,11 @@ if __name__ == "__main__":
 
     # Data loaders
     trainloader = get_data_loader(is_train=True, batch_size=args.batch_size, 
-                                image_transform=image_transform, dataset_dir=args.dataset)
+                                image_transform=image_transform, dataset_dir=args.dataset,
+                                data_file=args.train_file)
     testloader = get_data_loader(is_train=False, batch_size=args.batch_size, 
-                               image_transform=image_transform, dataset_dir=args.dataset)
+                               image_transform=image_transform, dataset_dir=args.dataset,
+                               data_file=args.test_file)
 
     model.train()
     print(model)
@@ -250,6 +215,8 @@ if __name__ == "__main__":
         dummy_input = torch.randn(1, 1, args.img_height, args.img_width).to(device)
         writer.add_graph(model, (dummy_input, dummy_input))
     
+    acc = 0
+    loss = 0
     # Training loop
     for epoch in range(args.num_epochs):
         print('Epoch {}/{}'.format(epoch, args.num_epochs))
@@ -297,3 +264,55 @@ if __name__ == "__main__":
     print(f'Experiment completed: {exp_dir}')
     print(f'To view TensorBoard logs, run: tensorboard --logdir={tensorboard_dir}')
     print(f'To view all experiments, run: tensorboard --logdir={args.exp_root}')
+
+    return acc
+
+def get_parser():
+    parser = ArgumentParser(description='SigNet Training Script')
+    
+    # Training parameters
+    parser.add_argument('--batch_size', type=int, default=16, help='Batch size for training and validation')
+    parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate')
+    parser.add_argument('--num_epochs', type=int, default=1, help='Number of training epochs')
+    parser.add_argument('--seed', type=int, default=2020, help='Random seed for reproducibility')
+    
+    # Dataset parameters
+    parser.add_argument('--dataset', type=str, choices=['data/CEDAR', 'sign_data'], default='data/CEDAR', help='Dataset directory path')
+    parser.add_argument('--train_file', type=str, default=None, help='Train data file')
+    parser.add_argument('--test_file', type=str, default=None, help='Test data file')
+    parser.add_argument('--img_height', type=int, default=155, help='Image height for resizing')
+    parser.add_argument('--img_width', type=int, default=220, help='Image width for resizing')
+    
+    # Optimizer parameters
+    parser.add_argument('--optimizer', type=str, choices=['rmsprop', 'adam', 'sgd'], default='adam', help='Optimizer type')
+    parser.add_argument('--eps', type=float, default=1e-8, help='Optimizer epsilon (for RMSprop and Adam)')
+    parser.add_argument('--weight_decay', type=float, default=2e-4, help='Weight decay')
+    parser.add_argument('--momentum', type=float, default=0.9, help='Momentum (for RMSprop and SGD)')
+    
+    # Scheduler parameters
+    parser.add_argument('--scheduler_step', type=int, default=5, help='Learning rate scheduler step size')
+    parser.add_argument('--scheduler_gamma', type=float, default=0.5, help='Learning rate scheduler gamma')
+    
+    # Loss function parameters
+    parser.add_argument('--alpha', type=float, default=1.0, help='Contrastive loss alpha parameter')
+    parser.add_argument('--beta', type=float, default=1.0, help='Contrastive loss beta parameter')
+    parser.add_argument('--margin', type=float, default=1.0, help='Contrastive loss margin parameter')
+    
+    # Dropout parameters
+    parser.add_argument('--dropout_conv_p', type=float, default=0.2, help='Dropout probability for convolutional layers')
+    parser.add_argument('--dropout_fc_p', type=float, default=0.3, help='Dropout probability for fully connected layers')
+    
+    # Experiment organization parameters
+    parser.add_argument('--exp_name', type=str, default='signet_exp', help='Experiment name for organizing outputs')
+    parser.add_argument('--exp_root', type=str, default='experiments', help='Root directory for all experiments')
+    parser.add_argument('--log_interval', type=int, default=1, help='Logging interval for training progress')
+    
+    # Model graph logging
+    parser.add_argument('--log_model_graph', action='store_true', default=True, help='Log model architecture to TensorBoard')
+    
+    return parser
+
+if __name__ == "__main__":
+    parser = get_parser()
+    args = parser.parse_args()
+    run_training(args)
