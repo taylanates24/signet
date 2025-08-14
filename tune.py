@@ -101,7 +101,7 @@ def tune(args):
     bayesian_trial_coeff = args.bayesian_trial_coeff
     output_dir = args.output_dir
     
-    timestamp = time.strftime('%Y%m%d_%H%M')
+    timestamp = time.strftime('%Y%m%d_%H%M%S')
     run_dir = os.path.join(output_dir, f'{study_name}_{timestamp}')
     os.makedirs(run_dir, exist_ok=True)
     
@@ -109,11 +109,11 @@ def tune(args):
     args.exp_root = run_dir
 
     full_param_space = {
-        'lr': [1e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3, 5e-3, 1e-2],
-        'batch_size': [16, 32],
-        'dropout_conv_p': [0, 0.1, 0.3],
-        'dropout_fc_p': [0, 0.1, 0.3],
-        'weight_decay': [0, 5e-4],
+        'lr': [1e-4],
+        'batch_size': [16],
+        'dropout_conv_p': [0],
+        'dropout_fc_p': [0],
+        'weight_decay': [0],
     }
 
     # Filter the parameter space based on the params_to_search argument
@@ -150,7 +150,7 @@ def tune(args):
     # Save best hyperparameters to JSON
     best_params_path = os.path.join(run_dir, 'best_params.json')
     with open(best_params_path, 'w') as f:
-        json.dump(best_params, f, indent=4)
+        json.dump({'best_value': best_value, 'best_params': best_params}, f, indent=4)
     print(f"Best hyperparameters saved to {best_params_path}")
 
     # Save summary to a text file
@@ -172,7 +172,7 @@ def tune(args):
         print(f"    {key}: {value}")
     print("="*50 + "\n")
     
-    return study.best_params
+    return study.best_params, study.best_value
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SigNet Hyperparameter Tuning Script')
@@ -215,14 +215,20 @@ if __name__ == '__main__':
 
     # Add tuning-specific arguments
     parser.add_argument('--name', default='signet_tuning', help='The name of the study')
-    parser.add_argument('--random_trial_coeff', type=float, default=1.2, help='The coefficient for the number of startup trials')
-    parser.add_argument('--bayesian_trial_coeff', type=float, default=1.2, help='The coefficient for the number of trials')
+    parser.add_argument('--random_trial_coeff', type=float, default=1, help='The coefficient for the number of startup trials')
+    parser.add_argument('--bayesian_trial_coeff', type=float, default=1, help='The coefficient for the number of trials')
     parser.add_argument('--output_dir', type=str, default='tuning_results', help='Directory to save tuning results')
     parser.add_argument('--params_to_search', nargs='+', default=['lr', 'batch_size', 'dropout_conv_p', 'dropout_fc_p', 'weight_decay'], 
                         help='List of hyperparameters to search (e.g., lr, batch_size)')
     
     args = parser.parse_args()
     
-    best_params = tune(args)
+    best_params, best_value = tune(args)
     print("Best hyperparameters found:")
-    print(best_params) 
+    print(best_params)
+    print(f"Best value: {best_value}")
+
+    best_params_path = os.path.join(args.output_dir, 'best_params.json')
+    with open(best_params_path, 'w') as f:
+        json.dump({'best_value': best_value, 'best_params': best_params}, f, indent=4)
+    print(f"Best hyperparameters saved to {best_params_path}") 
