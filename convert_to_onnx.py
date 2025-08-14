@@ -265,9 +265,9 @@ def get_model_info(onnx_path):
 
 if __name__ == "__main__":
     parser = ArgumentParser(description='Convert SigNet PyTorch model to ONNX')
-    parser.add_argument('--model_path', type=str, default='experiments/signet_exp_20250703_101313/checkpoints/20250703_101313_epoch_000_loss_0.4860_acc_1.0000.pt', 
+    parser.add_argument('--model_path', type=str, default='model.pt', 
                        help='Path to the PyTorch model checkpoint')
-    parser.add_argument('--output_path', type=str, default='signet.onnx',
+    parser.add_argument('--output_path', type=str, default='model.onnx',
                        help='Path to save the ONNX model')
     parser.add_argument('--batch_size', type=int, default=1,
                        help='Batch size for the model (default: 1)')
@@ -276,7 +276,7 @@ if __name__ == "__main__":
     parser.add_argument('--img_width', type=int, default=220,
                        help='Image width (default: 220)')
     parser.add_argument('--opset_version', type=int, default=19,
-                       help='ONNX opset version (default: 11)')
+                       help='ONNX opset version (default: 19)')
     parser.add_argument('--dynamic_axes', action='store_true', default=True,
                        help='Use dynamic axes for variable batch size')
     parser.add_argument('--device', type=str, default='cuda', choices=['cpu', 'cuda'],

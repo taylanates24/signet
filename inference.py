@@ -11,13 +11,15 @@ from data import get_data_loader
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 class SigNetInference:
-    def __init__(self, model_path, threshold=0.5):
+    def __init__(self, model_path, threshold=0.5, img_height=None, img_width=None):
         """
         Initialize SigNet inference class
         
         Args:
             model_path (str): Path to the trained model checkpoint
             threshold (float): Distance threshold for genuine/forged classification
+            img_height (int, optional): Image height for preprocessing. Overrides checkpoint settings.
+            img_width (int, optional): Image width for preprocessing. Overrides checkpoint settings.
         """
         self.threshold = threshold
         self.device = device
@@ -29,10 +31,13 @@ class SigNetInference:
         self.model.eval()
         
         # Get image transform settings from checkpoint if available
-        if 'args' in checkpoint:
+        if img_height is not None and img_width is not None:
+            self.img_height = img_height
+            self.img_width = img_width
+        elif 'args' in checkpoint:
             args = checkpoint['args']
-            self.img_height = args.img_height if hasattr(args, 'img_height') else 155
-            self.img_width = args.img_width if hasattr(args, 'img_width') else 220
+            self.img_height = getattr(args, 'img_height', 155)
+            self.img_width = getattr(args, 'img_width', 220)
         else:
             self.img_height = 155
             self.img_width = 220
@@ -288,8 +293,10 @@ if __name__ == "__main__":
     parser.add_argument('--image2', type=str, default='data/CEDAR/full_org/original_1_12.png', help='Path to second signature image')
     #parser.add_argument('--image2', type=str, default='data/CEDAR/full_forg/forgeries_1_8.png', help='Path to second signature image')
     parser.add_argument('--threshold', type=float, default=0.0641, help='Distance threshold for classification')
-    parser.add_argument('--dataset', type=str, help='Dataset directory for evaluation')
+    parser.add_argument('--dataset', type=str, default='data/CEDAR', help='Dataset directory for evaluation')
     parser.add_argument('--batch_size', type=int, default=1, help='Batch size for evaluation')
+    parser.add_argument('--img_height', type=int, default=155, help='Image height for preprocessing. Overrides checkpoint settings.')
+    parser.add_argument('--img_width', type=int, default=220, help='Image width for preprocessing. Overrides checkpoint settings.')
     parser.add_argument('--find_optimal_threshold', action='store_true', help='Find optimal threshold on dataset')
     parser.add_argument('--threshold_min', type=float, default=0.1, help='Minimum threshold to test')
     parser.add_argument('--threshold_max', type=float, default=2.0, help='Maximum threshold to test')
@@ -298,7 +305,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # Load model for inference
-    inferencer = SigNetInference(args.model_path, args.threshold)
+    inferencer = SigNetInference(
+        args.model_path,
+        args.threshold,
+        img_height=args.img_height,
+        img_width=args.img_width
+    )
     
     if args.image1 and args.image2:
         # Single pair prediction
@@ -317,25 +329,9 @@ if __name__ == "__main__":
         # Dataset evaluation
         print(f"\nEvaluating on dataset: {args.dataset}")
         
-        # Get image dimensions from model
-        checkpoint = torch.load(args.model_path, map_location=device)
-        if 'args' in checkpoint:
-            model_args = checkpoint['args']
-            img_height = model_args.img_height if hasattr(model_args, 'img_height') else 155
-            img_width = model_args.img_width if hasattr(model_args, 'img_width') else 220
-        else:
-            img_height, img_width = 155, 220
-        
-        # Create data transform
-        image_transform = transforms.Compose([
-            transforms.Resize((img_height, img_width)),
-            ImageOps.invert,
-            transforms.ToTensor(),
-        ])
-        
-        # Load test data
+        # Load test data using the transform from the inferencer
         testloader = get_data_loader(is_train=False, batch_size=args.batch_size, 
-                                   image_transform=image_transform, dataset_dir=args.dataset)
+                                   image_transform=inferencer.transform, dataset_dir=args.dataset)
         
         if args.find_optimal_threshold:
             # Find optimal threshold
