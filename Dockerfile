@@ -45,7 +45,8 @@ RUN pip --no-cache-dir install \
     onnxruntime-gpu \
     tensorrt==10.7.0 \
     tensorboard==2.16.2 \
-    pycuda
+    pycuda \
+    optuna==4.4.0
 
 RUN pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
 
