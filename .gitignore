@@ -5,3 +5,8 @@ sign_data
 *onnx
 *pt
 *pth
+events*
+__pycache__
+experiments
+*.db
+*.log

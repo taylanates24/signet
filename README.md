@@ -68,10 +68,35 @@ The container expects the following directory structure:
 ```
 /workspace/
 ├── data/           # Training/validation data
-├── sign_data/      # Sign language data
 ├── experiments/    # Experiment outputs
 ├── *.py           # Python scripts
 ├── *.onnx         # ONNX models
 └── *.trt          # TensorRT models
 ```
+
+
+## Datasets
+
+Download the following datasets and place them in the `data/` directory.
+
+- **ICDAR 2011**: [Download](https://drive.google.com/file/d/14v35pUmlbIWq2JbkTc2d8wpIhMibngO4/view?usp=sharing)
+- **CEDAR**: [Download](https://drive.google.com/file/d/1iX2blo--6B5Ol55tj6aamP0qnj2OyouM/view?usp=drive_link)
+
+## Creating a Dataset Subset
+
+For faster experimentation and hyperparameter tuning, you can create a smaller subset of your dataset using the `create_subset.py` script.
+
+### How to Use
+
+To create a 10% subset of the training data, run the following command from the root of the project:
+
+```bash
+python create_subset.py data/CEDAR/train.csv --subset_size 0.1 --output_dir data/CEDAR_subset --stratify
+```
+
+This will create a new file named `train_subset_0.1.csv` inside the `data/CEDAR_subset` directory.
+
+### What is Stratify?
+
+In the context of creating a dataset subset, **stratify** refers to **stratified sampling**. It's a method of sampling that ensures the new, smaller dataset (the subset) has the same proportion of categories or classes (e.g., "genuine" and "forged" signatures) as the original, larger dataset. This is crucial for obtaining reliable results during training and evaluation.
 
