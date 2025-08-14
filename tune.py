@@ -38,7 +38,7 @@ def objective(trial, base_args):
     if 'dropout_fc_p' in args.params_to_search:
         args.dropout_fc_p = trial.suggest_float('dropout_fc_p', 0.0, 0.3)
     if 'weight_decay' in args.params_to_search:
-        args.weight_decay = trial.suggest_categorical('weight_decay', [0, 5e-4])
+        args.weight_decay = trial.suggest_categorical('weight_decay', [0, 2e-4, 5e-4])
     
     print(f"Trial {trial.number}:")
     print(f"  Learning Rate: {args.lr}")
@@ -109,11 +109,11 @@ def tune(args):
     args.exp_root = run_dir
 
     full_param_space = {
-        'lr': [1e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3, 5e-3, 1e-2],
-        'batch_size': [8, 16, 32, 64],
-        'dropout_conv_p': [0, 0.1, 0.3],
+        'lr': [1e-4, 1e-5, 5e-5, 2e-4, 5e-4, 1e-3, 5e-3, 1e-2],
+        'batch_size': [16, 32, 64],
+        'dropout_conv_p': [0, 0.1, 0.2],
         'dropout_fc_p': [0, 0.1, 0.3],
-        'weight_decay': [0, 5e-4],
+        'weight_decay': [0, 2e-4, 5e-4],
     }
 
     # Filter the parameter space based on the params_to_search argument
@@ -232,3 +232,4 @@ if __name__ == '__main__':
     with open(best_params_path, 'w') as f:
         json.dump({'best_value': best_value, 'best_params': best_params}, f, indent=4)
     print(f"Best hyperparameters saved to {best_params_path}") 
+    
