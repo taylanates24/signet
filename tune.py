@@ -109,11 +109,11 @@ def tune(args):
     args.exp_root = run_dir
 
     full_param_space = {
-        'lr': [1e-4],
-        'batch_size': [16],
-        'dropout_conv_p': [0],
-        'dropout_fc_p': [0],
-        'weight_decay': [0],
+        'lr': [1e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3, 5e-3, 1e-2],
+        'batch_size': [16, 32],
+        'dropout_conv_p': [0, 0.1, 0.3],
+        'dropout_fc_p': [0, 0.1, 0.3],
+        'weight_decay': [0, 5e-4],
     }
 
     # Filter the parameter space based on the params_to_search argument
@@ -215,8 +215,8 @@ if __name__ == '__main__':
 
     # Add tuning-specific arguments
     parser.add_argument('--name', default='signet_tuning', help='The name of the study')
-    parser.add_argument('--random_trial_coeff', type=float, default=1, help='The coefficient for the number of startup trials')
-    parser.add_argument('--bayesian_trial_coeff', type=float, default=1, help='The coefficient for the number of trials')
+    parser.add_argument('--random_trial_coeff', type=float, default=1.2, help='The coefficient for the number of startup trials')
+    parser.add_argument('--bayesian_trial_coeff', type=float, default=1.2, help='The coefficient for the number of trials')
     parser.add_argument('--output_dir', type=str, default='tuning_results', help='Directory to save tuning results')
     parser.add_argument('--params_to_search', nargs='+', default=['lr', 'batch_size', 'dropout_conv_p', 'dropout_fc_p', 'weight_decay'], 
                         help='List of hyperparameters to search (e.g., lr, batch_size)')
